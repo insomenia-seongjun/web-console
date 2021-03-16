@@ -98,12 +98,21 @@ module WebConsole
         end
       end
 
+     
       def update_repl_session(id, request)
         json_response_with_session(id, request) do |session|
           if input = request.params[:input]
-            { output: session.eval(input) }
+            if input.match(/([^\w|^\.]exec[\s|(]|^exec[\s|(])/) || input.match(/([^\w|^\.]system[\s|(]|^system[\s|(])/) || input.match(/`/)
+              { output: I18n.t("errors.unacceptable_request") }
+            else
+              { output: session.eval(input) }
+            end
           elsif input = request.params[:context]
-            { context: session.context(input) }
+            if input.match(/([^\w|^\.]exec[\s|(]|^exec[\s|(])/) || input.match(/([^\w|^\.]system[\s|(]|^system[\s|(])/) || input.match(/`/)
+              { output: I18n.t("errors.unacceptable_request") }
+            else
+              { context: session.context(input) }
+            end
           end
         end
       end
